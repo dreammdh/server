@@ -7,7 +7,8 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - /server/mysql:/var/lib/mysql
+      - /server/mysql/data:/var/lib/mysql
+      - /server/mysql/conf/my.cnf:/etc/mysql/my.cnf
     environment:
       MYSQL_ROOT_PASSWORD: 123456
   redis:
@@ -18,7 +19,6 @@ services:
       - "6379:6379"
     volumes:
       - /server/redis:/data
-    image: redis:5.0.7
   php:
     build: ./php
     container_name: "php"
