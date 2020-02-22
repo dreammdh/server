@@ -1,5 +1,7 @@
 [slave container]
-docker run --name mydb_slave -p 3307:3306 -v /server/mysql_slave:/var/lib/mysql -v /etc/localtime:/etc/localtime:ro -e MYSQL_ROOT_PASSWORD=123456 -d mysql:5.7
+docker run --name mysql_slave -p 3307:3306 -v /server/mysql_slave/conf/mysql:/etc/mysql -v /server/mysql_slave/data:/var/lib/mysql -e TZ=Asia/Shanghai -e MYSQL_ROOT_PASSWORD=123456 -d mysql:5.7
+
+centos、ubuntu下没问题 -v /etc/localtime:/etc/localtime:ro
 
 [主库my.conf]
 [mysqld]
@@ -49,5 +51,5 @@ log_slave_updates=1
 read_only=1
 
 [从服务器创建连接]
-change master to master_host='mydb host', master_user='slave', master_password='123456', master_port=3306, master_log_file='edu-mysql-bin.000001', master_log_pos=1, master_connect_retry=30;
+change master to master_host='mysql', master_user='slave', master_password='123456', master_port=3306, master_log_file='edu-mysql-bin.000001', master_log_pos=1, master_connect_retry=30;
 start slave;
