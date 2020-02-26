@@ -17,11 +17,11 @@ RUN apt-get update && apt-get install -y \
         && docker-php-ext-install opcache \
         && docker-php-ext-install mysqli
 
-
-
 RUN pecl install redis && docker-php-ext-enable redis \
     && pecl install xdebug && docker-php-ext-enable xdebug \
-    && pecl install memcached && docker-php-ext-enable memcached
+    && pecl install mongodb && docker-php-ext-enable mongodb \
+    && pecl install memcached && docker-php-ext-enable memcached \
+    && pecl install swoole && docker-php-ext-enable swoole
 
 
 RUN echo "" >> /usr/local/etc/php/php.ini

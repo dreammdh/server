@@ -1,55 +1,101 @@
 version: "2"
 services:
-  mysql:
+  mysql_master:
     build: ./mysql
-    container_name: "mysql"
+    container_name: "mysql_master"
     restart: always
     ports:
-      - "3306:3306"
+      - 3306:3306
     volumes:
       - /server/mysql/data:/var/lib/mysql
       - /server/mysql/conf/mysql:/etc/mysql
     environment:
       MYSQL_ROOT_PASSWORD: 123456
+    networks:
+      net-web:
+        ipv4_address: 172.19.0.6
+  mysql_slave:
+    build: ./mysql
+    container_name: "mysql_slave"
+    restart: always
+    ports:
+      - 3307:3306
+    volumes:
+      - /server/mysql_slave/data:/var/lib/mysql
+      - /server/mysql_slave/conf/mysql:/etc/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+    networks:
+      net-web:
+        ipv4_address: 172.19.0.7
   redis:
     build: ./redis
     container_name: "redis"
     restart: always
     ports:
-      - "6379:6379"
+      - 6379:6379
     volumes:
       - /server/redis:/data
       - /server/redis/conf:/etc/redis
+    networks:
+      net-web:
+        ipv4_address: 172.19.0.3
   memcached:
     build: ./memcached
     container_name: "memcached"
     restart: always
     ports:
-      - "11211:11211"
+      - 11211:11211
     environment:
       TZ: "Asia/Shanghai"
+    networks:
+      net-web:
+        ipv4_address: 172.19.0.4
+  mongodb:
+    build: ./mongodb
+    container_name: "mongodb"
+    restart: always
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: 123456
+    volumes:
+      - /server/mongo/data/db:/data/db
+      - /server/mongo/mongodb.key:/data/mongodb.key
+      - /server/mongo/log:/mongo/log
+    networks:
+      net-web:
+        ipv4_address: 172.19.0.5
   php:
     build: ./php
     container_name: "php"
     restart: always
     ports:
-      - "9000:9000"
+      - 9000:9000
     volumes:
       - /server/www:/var/www/html
       - /server/php/php.ini:/usr/local/etc/php/php.ini
-    links:
-      - "mysql"
-      - "redis"
-      - "memcached"
+    networks:
+      - net-web
   nginx:
     build: ./nginx
     container_name: "nginx"
     restart: always
     ports:
-      - "80:80"
-    links:
+      - 80:80
+      - 443:443
+    depends_on:
       - "php"
     volumes:
       - /server/www:/usr/share/nginx/html
       - /server/nginx:/etc/nginx
       - /server/logs/nginx.logs:/var/log/nginx
+    networks:
+      - net-web
+networks:
+  net-web:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.19.0.0/24
