@@ -36,7 +36,7 @@ services:
       - 6379:6379
     volumes:
       - /server/redis:/data
-      - /server/redis/conf:/etc/redis
+      - /server/redis/conf/redis.conf:/etc/redis/redis.conf
     networks:
       net-web:
         ipv4_address: 172.19.0.3
